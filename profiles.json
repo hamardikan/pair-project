@@ -4,7 +4,7 @@
     "userId": 1,
     "fullName": "joko",
     "bio": "Loves coding.", 
-    "avatarUrl": "http://example.com/avatar1.png", 
+    "avatarUrl": "https://www.flaticon.com/free-icon/user_149071", 
     "location": "New York", 
     "birthDate": "1990-01-01" 
     },
@@ -13,7 +13,7 @@
      "userId": 2,
      "fullName": "Jane Doe",
      "bio": "Artist and designer.",
-     "avatarUrl": "http://example.com/avatar2.png",
+     "avatarUrl": "https://www.flaticon.com/free-icon/user_149071",
      "location": "Los Angeles",
      "birthDate": "1992-02-01"
     },
@@ -22,7 +22,7 @@
      "userId": 3,
      "fullName": "Alice Johnson",
      "bio": "Frontend Engineer.",
-     "avatarUrl": "http://example.com/avatar3.png",
+     "avatarUrl": "https://www.flaticon.com/free-icon/user_149071",
      "location": "San Francisco",
      "birthDate": "1988-05-15"
     },
@@ -31,7 +31,7 @@
      "userId": 4,
      "fullName": "Bob Smith",
      "bio": "Backend specialist.",
-     "avatarUrl": "http://example.com/avatar4.png",
+     "avatarUrl": "https://www.flaticon.com/free-icon/user_149071",
      "location": "Austin",
      "birthDate": "1985-07-20"
     },
@@ -40,7 +40,7 @@
      "userId": 5,
      "fullName": "Charlie Brown",
      "bio": "Data Scientist.",
-     "avatarUrl": "http://example.com/avatar5.png",
+     "avatarUrl": "https://www.flaticon.com/free-icon/user_149071",
      "location": "Seattle",
      "birthDate": "1993-11-10"
     },
@@ -49,7 +49,7 @@
      "userId": 6,
      "fullName": "Dave Adams",
      "bio": "System Architect.",
-     "avatarUrl": "http://example.com/avatar6.png",
+     "avatarUrl": "https://www.flaticon.com/free-icon/user_149071",
      "location": "Chicago",
      "birthDate": "1979-02-25"
     },
@@ -58,7 +58,7 @@
      "userId": 7,
      "fullName": "Eve Carter",
      "bio": "Product Manager.",
-     "avatarUrl": "http://example.com/avatar7.png",
+     "avatarUrl": "https://www.flaticon.com/free-icon/user_149071",
      "location": "Boston",
      "birthDate": "1995-03-18"
     },
@@ -67,7 +67,7 @@
      "userId": 8,
      "fullName": "Frank White",
      "bio": "AI Enthusiast.",
-     "avatarUrl": "http://example.com/avatar8.png",
+     "avatarUrl": "https://www.flaticon.com/free-icon/user_149071",
      "location": "Dallas",
      "birthDate": "1990-06-30"
     },
@@ -76,7 +76,7 @@
      "userId": 9,
      "fullName": "Grace Hall",
      "bio": "Cloud Specialist.",
-     "avatarUrl": "http://example.com/avatar9.png",
+     "avatarUrl": "https://www.flaticon.com/free-icon/user_149071",
      "location": "Denver",
      "birthDate": "1987-12-12"
     },
@@ -85,7 +85,7 @@
      "userId": 10,
      "fullName": "Henry Miles",
      "bio": "DevOps Engineer.", 
-     "avatarUrl": "http://example.com/avatar10.png",
+     "avatarUrl": "https://www.flaticon.com/free-icon/user_149071",
      "location": "Phoenix",
      "birthDate": "1998-09-05"
     }
