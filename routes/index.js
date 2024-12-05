@@ -15,8 +15,8 @@ router.post('/logout', Controller.logout);
 router.get('/posts', Controller.getAllPosts);
 router.get('/posts/new', isLoggedIn, Controller.createPostForm);
 router.post('/posts', isLoggedIn, Controller.createPost);
-router.get('/posts/:id', Controller.getPostDetail); // New detailed view route
-router.get('/tags/:tagName', Controller.getPostsByTag); // New tag filter route
+router.get('/posts/:id', Controller.getPostDetail);
+router.get('/tags/:tagName', Controller.getPostsByTag);
 router.get('/posts/:id/edit', isLoggedIn, Controller.editPostForm);
 router.post('/posts/:id/edit', isLoggedIn, Controller.updatePost);
 router.get('/posts/:id/delete', isLoggedIn, Controller.deletePost);

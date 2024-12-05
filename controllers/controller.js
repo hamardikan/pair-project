@@ -211,18 +211,27 @@ class Controller {
         try {
             const { id } = req.params;
             const post = await Post.findByPk(id);
-
-            if (!post) throw new Error('Post not found');
-            if (!post.isOwnedBy(req.session.userId)) {
-                throw new Error('Unauthorized access');
+    
+            if (!post) {
+                throw new Error('Post not found');
             }
-
-            await post.removeTags();
+    
+            // Check if user is admin OR the author
+            if (req.session.user.role !== 'admin' || post.userId !== req.session.user.id) {
+                throw new Error('You are not authorized to delete this post');
+            }
+    
+            // Delete associated tags
+            await PostTag.destroy({
+                where: { postId: post.id }
+            });
+    
+            // Delete the post
             await post.destroy();
-
+    
             res.redirect('/posts?success=Post deleted successfully');
         } catch (error) {
-            Controller.handleError(res, error, '/posts');
+            res.redirect('/posts?error=' + error.message);
         }
     }
 

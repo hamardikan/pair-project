@@ -7,4 +7,12 @@ const isLoggedIn = (req, res, next) => {
     next()
 }
 
-module.exports = { isLoggedIn }
+const isAdmin = (req, res, next) => {
+    if (req.session.user.role !== 'admin') {
+        const error = 'Unauthorized access'
+        return res.redirect(`/posts?error=${error}`)
+    }
+    next()
+}
+
+module.exports = { isLoggedIn, isAdmin }
