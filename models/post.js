@@ -5,8 +5,8 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class Post extends Model {
     static associate(models) {
-      Post.belongsTo(models.User)
-      Post.belongsToMany(models.Tag, { through: models.PostTag })
+      Post.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
+      Post.belongsToMany(models.Tag, { through: models.PostTag, foreignKey:'postId',as: 'tags' })
     }
 
     // Instance method untuk format date

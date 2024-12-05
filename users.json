@@ -1,0 +1,72 @@
+[
+    {
+        "id": 1,
+        "username": "joko",
+        "email": "joko@example.com",
+        "password": "hashed_password1",
+        "role": "admin"
+      },
+      {
+        "id": 2,
+        "username": "jane_doe",
+        "email": "jane@example.com",
+        "password": "hashed_password2",
+        "role": "user"
+      },
+      {
+        "id": 3,
+        "username": "alice",
+        "email": "alice@example.com",
+        "password": "hashed_password3",
+        "role": "moderator"
+      },
+      {
+        "id": 4,
+        "username": "bob",
+        "email": "bob@example.com",
+        "password": "hashed_password4",
+        "role": "user"
+      },
+      {
+        "id": 5,
+        "username": "charlie",
+        "email": "charlie@example.com",
+        "password": "hashed_password5",
+        "role": "user"
+      },
+      {
+        "id": 6,
+        "username": "dave",
+        "email": "dave@example.com",
+        "password": "hashed_password6",
+        "role": "admin"
+      },
+      {
+        "id": 7,
+        "username": "eve",
+        "email": "eve@example.com",
+        "password": "hashed_password7",
+        "role": "user"
+      },
+      {
+        "id": 8,
+        "username": "frank",
+        "email": "frank@example.com",
+        "password": "hashed_password8",
+        "role": "moderator"
+      },
+      {
+        "id": 9,
+        "username": "grace",
+        "email": "grace@example.com",
+        "password": "hashed_password9",
+        "role": "user"
+      },
+      {
+        "id": 10,
+        "username": "henry",
+        "email": "henry@example.com",
+        "password": "hashed_password10",
+        "role": "user"
+      }
+]

@@ -5,7 +5,7 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class Tag extends Model {
     static associate(models) {
-      Tag.belongsToMany(models.Post, { through: models.PostTag })
+      Tag.belongsToMany(models.Post, { through: models.PostTag,foreignKey: 'tagId',as: 'posts' })
     }
   }
   Tag.init({
