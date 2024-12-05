@@ -1,72 +1,72 @@
 [
     { 
      "id": 1,
-     "title": "First Post",
-     "content": "Content of post 1",
-     "imgUrl": "http://example.com/post1.png",
+     "title": "The Future of Artificial Intelligence in Healthcare",
+     "content": "Artificial intelligence (AI) has seen significant advancements in the last decade, transforming various industries. One of the most promising sectors where AI is making a difference is healthcare. From diagnosing diseases to improving patient outcomes, AI has the potential to revolutionize the way we approach medical treatment and healthcare services.",
+     "imgUrl": "https://www.medicaldevice-network.com/wp-content/uploads/sites/23/2023/01/shutterstock_2118695231.jpg",
      "userId": 1
     },
     {
      "id": 2,
-     "title": "Second Post",
-     "content": "Content of post 2",
-     "imgUrl": "http://example.com/post2.png",
+     "title": "The Rise of Sustainable Fashion: How the Industry is Embracing Eco-Friendly Practices",
+     "content": "The fashion industry has long been one of the most resource-intensive sectors globally, contributing significantly to environmental degradation through pollution, waste, and the overuse of natural resources. However, in recent years, there has been a major shift toward sustainability in fashion. Consumers are becoming more conscious of the environmental impact of their purchases, and fashion brands are responding by adopting eco-friendly practices that aim to reduce their carbon footprint, promote ethical production, and encourage circular fashion.",
+     "imgUrl": "https://vuanem.com/blog/wp-content/uploads/2023/04/tim-hieu-ve-thoi-trang-sustainable-fashion.jpg",
      "userId": 2
     },
     { 
      "id": 3,
-     "title": "Third Post",
-     "content": "Content of post 3",
-     "imgUrl": "http://example.com/post3.png",
+     "title": "The Evolution of JavaScript: From a Simple Scripting Language to a Powerful Web Development Tool",
+     "content": "JavaScript has come a long way since its creation in the mid-1990s. Originally designed as a simple scripting language to add interactivity to websites, JavaScript has now evolved into one of the most powerful and versatile tools for modern web development. From client-side scripting to server-side programming, JavaScript plays a central role in the way we build and interact with web applications today.",
+     "imgUrl": " https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJA6UFV6kBwQkGnmhpKTjNlTnO2WTq9WdjxA&s",
      "userId": 3
     },
     { 
      "id": 4,
-     "title": "Fourth Post",
-     "content": "Content of post 4",
-     "imgUrl": "http://example.com/post4.png",
+     "title": "The Power of Python: Why It's the Most Popular Programming Language for Data Science",
+     "content": "Python has become the go-to language for data science, artificial intelligence, and machine learning. Learn about the features that make Python a favorite for developers, data analysts, and researchers.",
+     "imgUrl": "https://cdn.analyticsvidhya.com/wp-content/uploads/2021/04/34662python-programming-language.png",
      "userId": 4
     },
     {
      "id": 5,
-     "title": "Fifth Post",
-     "content": "Content of post 5",
-     "imgUrl": "http://example.com/post5.png",
+     "title": "Exploring the Rise of Machine Learning and Artificial Intelligence in Software Development",
+     "content": "Machine learning (ML) and artificial intelligence (AI) are transforming the software industry. This post explores how ML and AI are integrated into modern applications.",
+     "imgUrl": "https://th.bing.com/th/id/OIP.dkmLzIvqeYIu2WjnFxaIawHaE9?rs=1&pid=ImgDetMain",
      "userId": 5
     },
     { 
      "id": 6,
-     "title": "Sixth Post",
-     "content": "Content of post 6",
-     "imgUrl": "http://example.com/post6.png",
+     "title": "Web Development Frameworks: A Comparison Between React, Angular, and Vue.js",
+     "content": "Choosing the right web development framework is essential for creating scalable, efficient, and interactive web applications. Learn about the differences between React, Angular, and Vue.js.",
+     "imgUrl": "https://th.bing.com/th/id/OIP.jZP8enDDRCcDzJ2PkXmYRwAAAA?rs=1&pid=ImgDetMain",
      "userId": 6
     },
     { 
      "id": 7, 
-     "title": "Seventh Post",
-     "content": "Content of post 7",
-     "imgUrl": "http://example.com/post7.png",
+     "title": "Version Control with Git: Why Its Essential for Modern Development Teams",
+     "content": "Version control systems like Git help developers collaborate on projects. This post explains how Git works and why its an essential tool for modern development teams.",
+     "imgUrl": "https://miro.medium.com/v2/resize:fit:932/1*odxtilqfN40uE5hfGAJWPQ.png",
      "userId": 7
     },
     { 
      "id": 8,
-     "title": "Eighth Post",
-     "content": "Content of post 8",
-     "imgUrl": "http://example.com/post8.png",
+     "title": "The Importance of Cybersecurity in Software Development: Protecting Your Code and Data",
+     "content": "Cybersecurity penting biar ga ditabok mamah :3",
+     "imgUrl" : "https://www.pgsuae.com/wp-content/uploads/2023/05/The-Role-of-Cybersecurity-in-Web-Development.jpg",
      "userId": 8
     },
     { 
      "id": 9,
-     "title": "Ninth Post",
-     "content": "Content of post 9",
-     "imgUrl": "http://example.com/post9.png",
+     "title": "Building Progressive Web Apps (PWAs) for the Modern Web",
+     "content": "Progressive Web Apps (PWAs) offer an alternative to traditional mobile apps. This post explains how PWAs work and why they are becoming popular among developers.",
+     "imgUrl": "https://th.bing.com/th/id/OIP.YAK845N0-y1BA9xs5WGI3AHaEK?rs=1&pid=ImgDetMain",
      "userId": 9
     },
     {
      "id": 10,
-     "title": "Tenth Post",
-     "content": "Content of post 10",
-     "imgUrl": "http://example.com/post10.png", 
+     "title": "Introduction to DevOps: Bridging the Gap Between Development and IT Operations",
+     "content": "DevOps is a set of practices and tools designed to enhance collaboration between development and IT operations teams. It focuses on automating and improving the processes involved in software development, deployment, and operations to create a more efficient, streamlined workflow.",
+     "imgUrl": "https://d2myx53yhj7u4b.cloudfront.net/sites/default/files/IC-DevOps-Venn-Diagram.jpg", 
      "userId": 10
     }
 ]

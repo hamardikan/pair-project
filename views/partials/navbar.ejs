@@ -13,6 +13,11 @@
                     <a href="/posts" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm">Articles</a>
                     
                     <% if (locals.user) { %>
+                        <% if (user.role === 'admin') { %>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                Admin
+                            </span>
+                        <% } %>                    
                         <a href="/posts/new" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm">Write</a>
                         <div class="relative ml-3">
                             <a href="/profile" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm">Profile</a>

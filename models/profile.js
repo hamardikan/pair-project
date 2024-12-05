@@ -7,6 +7,16 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Profile.belongsTo(models.User, { foreignKey: 'userId'})
     }
+
+    async updateProfileData(data) {
+        const { fullName, bio, location, avatarUrl } = data;
+        await this.update({
+          fullName,
+          bio,
+          location,
+          avatarUrl
+        });
+      }
   }
   Profile.init({
     userId: {

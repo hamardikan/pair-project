@@ -13,16 +13,16 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'Posts',  // name of the referenced table
-                key: 'id'        // referenced column
+                model: 'Posts', 
+                key: 'id'        
             }
         },
         tagId: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'Tags',   // name of the referenced table
-                key: 'id'        // referenced column
+                model: 'Tags',   
+                key: 'id'        
             }
         }
     }, {
