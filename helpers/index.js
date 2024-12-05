@@ -30,12 +30,61 @@ class Helper {
         return bcrypt.compareSync(password, hashedPassword);
     }
 
-    // Untuk excerpt dari content
     static createExcerpt(content, length = 150) {
-        // Remove HTML tags untuk excerpt yang bersih
-        const plainText = content.replace(/<[^>]+>/g, '');
-        if (plainText.length <= length) return plainText;
-        return plainText.substring(0, length) + '...';
+        // First sanitize the HTML
+        const sanitizedContent = this.sanitizeHtml(content);
+        // Remove HTML tags for clean excerpt
+        const plainText = sanitizedContent.replace(/<[^>]+>/g, '').trim();
+        // Remove extra whitespace
+        const cleanText = plainText.replace(/\s+/g, ' ');
+        
+        if (cleanText.length <= length) {
+            return cleanText;
+        }
+        
+        // Find the last complete word within the length limit
+        const truncated = cleanText.substr(0, length);
+        const lastSpace = truncated.lastIndexOf(' ');
+        
+        return truncated.substr(0, lastSpace) + '...';
+    }
+
+    // Enhanced sanitizeHtml method
+    static sanitizeHtml(content) {
+        if (!content) return '';
+        
+        return content
+            // Remove script tags and their content
+            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+            // Remove onclick and other dangerous attributes
+            .replace(/on\w+="[^"]*"/g, '')
+            // Remove iframe tags
+            .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+            // Keep safe tags but remove potentially dangerous attributes
+            .replace(/<(p|div|span|h[1-6]|ul|ol|li|a|img|blockquote|pre|code|br|hr)(.*?)>/gi, (match, tag, attributes) => {
+                // Only allow specific safe attributes
+                const safeAttributes = attributes
+                    .replace(/on\w+="[^"]*"/g, '') // Remove event handlers
+                    .replace(/style="[^"]*"/g, '')  // Remove inline styles
+                    .replace(/javascript:[^"']*/g, ''); // Remove javascript: protocols
+                
+                // For img tags, ensure src is properly formatted
+                if (tag === 'img') {
+                    // Keep only src, alt, and class attributes
+                    const src = attributes.match(/src="([^"]*)"/);
+                    const alt = attributes.match(/alt="([^"]*)"/);
+                    const className = attributes.match(/class="([^"]*)"/);
+                    
+                    let newAttributes = '';
+                    if (src) newAttributes += ` ${src[0]}`;
+                    if (alt) newAttributes += ` ${alt[0]}`;
+                    if (className) newAttributes += ` ${className[0]}`;
+                    
+                    return `<${tag}${newAttributes}>`;
+                }
+                
+                return `<${tag}${safeAttributes}>`;
+            });
     }
 
     // Untuk format username dari email kalau username kosong
@@ -48,13 +97,6 @@ class Helper {
         return tags.map(tag => tag.name).join(', ');
     }
 
-    // Untuk sanitasi HTML (basic)
-    static sanitizeHtml(content) {
-        // Basic sanitization, bisa diganti dengan library seperti DOMPurify jika diperlukan
-        return content
-            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-            .replace(/on\w+="[^"]*"/g, '');
-    }
 
     // Untuk generate avatar jika tidak ada
     static getDefaultAvatar(username) {

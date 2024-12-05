@@ -1,9 +1,14 @@
 const { User, Profile, Post, Tag, PostTag } = require('../models');
-const bcrypt = require('bcryptjs');
-const Helper = require("../helpers/index.js")
+const Helper = require("../helpers/index.js");
+const { Op } = require('sequelize');
 
 class Controller {
-    // Home
+    // Centralized error handler
+    static handleError(res, error, redirectUrl = '/') {
+        console.error('Error:', error);
+        return res.redirect(`${redirectUrl}?error=${encodeURIComponent(error.message)}`);
+    }
+
     static async home(req, res) {
         try {
             const posts = await Post.findAll({
@@ -14,9 +19,9 @@ class Controller {
                 order: [['createdAt', 'DESC']],
                 limit: 6
             });
-            res.render('index', { posts , Helper});
+            res.render('index', { posts, Helper });
         } catch (error) {
-            res.render('error', { error });
+            Controller.handleError(res, error);
         }
     }
 
@@ -29,15 +34,11 @@ class Controller {
     static async register(req, res) {
         try {
             const { username, email, password } = req.body;
-            await User.create({
-                username,
-                email,
-                password,
-                role: 'user'
-            });
+            const user = await User.create({ username, email, password, role: 'user' });
+            await user.createEmptyProfile();
             res.redirect('/login?success=Registration successful');
         } catch (error) {
-            res.redirect(`/register?error=${error.message}`);
+            Controller.handleError(res, error, '/register');
         }
     }
 
@@ -49,36 +50,28 @@ class Controller {
     static async login(req, res) {
         try {
             const { email, password } = req.body;
-            const user = await User.findOne({ where: { email } });
-            
-            if (!user) {
+            const user = await User.findOne({
+                where: { email },
+                include: [Profile]
+            });
+
+            if (!user || !User.validatePassword(password, user.password)) {
                 throw new Error('Invalid email/password');
             }
-            
-            const isValidPassword = bcrypt.compareSync(password, user.password);
-            if (!isValidPassword) {
-                throw new Error('Invalid email/password');
-            }
-    
-            // Set session data
+
             req.session.userId = user.id;
             req.session.role = user.role;
-            req.session.user = {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                role: user.role
-            };
-    
+            req.session.user = user.profileData;
+
             res.redirect('/');
         } catch (error) {
-            res.redirect(`/login?error=${error.message}`);
+            Controller.handleError(res, error, '/login');
         }
     }
 
     static logout(req, res) {
         req.session.destroy(err => {
-            if (err) console.log(err);
+            if (err) console.error('Logout error:', err);
             res.redirect('/');
         });
     }
@@ -93,97 +86,74 @@ class Controller {
                 ],
                 order: [['createdAt', 'DESC']]
             });
-            res.render('posts/show', { posts, Helper });
+            res.render('posts/show', { posts, Helper, currentTag: null });
         } catch (error) {
-            res.render('error', { error });
+            Controller.handleError(res, error);
         }
     }
 
-    static createPostForm(req, res) {
-        res.render('posts/create');
-    }
-
-    static async createPost(req, res) {
-        try {
-            const { title, content, tags } = req.body;
-            // content disini sudah dalam format HTML dari Quill.js
-            const userId = req.session.userId;
-
-            const post = await Post.create({
-                title,
-                content, // HTML content dari Quill
-                userId
-            });
-
-            if (tags) {
-                const tagArray = tags.split(',').map(tag => tag.trim());
-                for (const tagName of tagArray) {
-                    const [tag] = await Tag.findOrCreate({
-                        where: { name: tagName }
-                    });
-                    await PostTag.create({
-                        postId: post.id,
-                        tagId: tag.id
-                    });
-                }
-            }
-
-            res.redirect('/posts');
-        } catch (error) {
-            res.render('error', { error });
-        }
-    }
-
-    // Profile Controllers
-    static async getProfile(req, res) {
-        try {
-            const user = await User.findOne({
-                where: { id: req.session.userId },
-                include: Profile
-            });
-            res.render('profile', { user });
-        } catch (error) {
-            res.render('error', { error });
-        }
-    }
-
-    static async updateProfile(req, res) {
-        try {
-            const { fullName, bio, location } = req.body;
-            await Profile.update({
-                fullName,
-                bio,
-                location
-            }, {
-                where: { userId: req.session.userId }
-            });
-            res.redirect('/profile?success=Profile updated');
-        } catch (error) {
-            res.redirect(`/profile?error=${error.message}`);
-        }
-    }
-
-    static async getPostById(req, res) {
+    static async getPostDetail(req, res) {
         try {
             const { id } = req.params;
             const post = await Post.findOne({
                 where: { id },
                 include: [
-                    {
-                        model: User,
-                        include: [Profile]
-                    },
+                    { model: User, include: [Profile] },
                     { model: Tag }
                 ]
             });
 
-            if (!post) {
-                throw new Error('Post not found');
+            if (!post) throw new Error('Post not found');
+            res.render('posts/detail', { post, Helper });
+        } catch (error) {
+            Controller.handleError(res, error, '/posts');
+        }
+    }
+
+    static async getPostsByTag(req, res) {
+        try {
+            const { tagName } = req.params;
+            const tag = await Tag.findOne({
+                where: { name: tagName.toLowerCase() }
+            });
+
+            if (!tag) throw new Error('Tag not found');
+
+            const posts = await Post.findAll({
+                include: [
+                    { model: User, include: [Profile] },
+                    { model: Tag, where: { id: tag.id } }
+                ],
+                order: [['createdAt', 'DESC']]
+            });
+
+            res.render('posts/show', { posts, Helper, currentTag: tagName });
+        } catch (error) {
+            Controller.handleError(res, error, '/posts');
+        }
+    }
+
+    static createPostForm(req, res) {
+        const { error } = req.query;
+        res.render('posts/create', { error, Helper });
+    }
+
+    static async createPost(req, res) {
+        try {
+            const { title, content, tags, imgUrl } = req.body;
+            const userId = req.session.userId;
+
+            const post = await Post.create({
+                title, content, imgUrl, userId
+            });
+
+            if (tags) {
+                await post.addTags(tags.split(','));
             }
 
-            res.render('posts/show', { post });
+            res.redirect('/posts');
         } catch (error) {
-            res.render('error', { error: error.message });
+            Controller.handleError(res, error, '/posts/new');
         }
     }
 
@@ -195,69 +165,45 @@ class Controller {
                 include: [Tag]
             });
 
-            if (!post) {
-                throw new Error('Post not found');
+            if (!post) throw new Error('Post not found');
+            if (!post.isOwnedBy(req.session.userId)) {
+                throw new Error('Unauthorized access');
             }
 
-            // Check if user is the author
-            if (post.userId !== req.session.userId) {
-                throw new Error('You are not authorized to edit this post');
-            }
-
-            res.render('posts/edit', { post });
+            res.render('posts/edit', { post, Helper });
         } catch (error) {
-            res.redirect(`/posts?error=${error.message}`);
+            Controller.handleError(res, error, '/posts');
         }
     }
 
     static async updatePost(req, res) {
         try {
             const { id } = req.params;
-            const { title, content, tags } = req.body;
+            const { title, content, tags, imgUrl } = req.body;
 
             const post = await Post.findOne({
                 where: { id },
                 include: [Tag]
             });
 
-            if (!post) {
-                throw new Error('Post not found');
+            if (!post) throw new Error('Post not found');
+            if (!post.isOwnedBy(req.session.userId)) {
+                throw new Error('Unauthorized access');
             }
 
-            // Check if user is the author
-            if (post.userId !== req.session.userId) {
-                throw new Error('You are not authorized to edit this post');
-            }
-
-            // Update post
             await post.update({
                 title,
-                content
+                content,
+                imgUrl: imgUrl || null
             });
 
-            // Handle tags update
             if (tags) {
-                // Remove old tags
-                await PostTag.destroy({
-                    where: { postId: post.id }
-                });
-
-                // Add new tags
-                const tagArray = tags.split(',').map(tag => tag.trim());
-                for (const tagName of tagArray) {
-                    const [tag] = await Tag.findOrCreate({
-                        where: { name: tagName }
-                    });
-                    await PostTag.create({
-                        postId: post.id,
-                        tagId: tag.id
-                    });
-                }
+                await post.updateTags(tags.split(','));
             }
 
             res.redirect(`/posts/${id}`);
         } catch (error) {
-            res.redirect(`/posts/${id}/edit?error=${error.message}`);
+            Controller.handleError(res, error, `/posts/${req.params.id}/edit`);
         }
     }
 
@@ -266,26 +212,68 @@ class Controller {
             const { id } = req.params;
             const post = await Post.findByPk(id);
 
-            if (!post) {
-                throw new Error('Post not found');
+            if (!post) throw new Error('Post not found');
+            if (!post.isOwnedBy(req.session.userId)) {
+                throw new Error('Unauthorized access');
             }
 
-            // Check if user is the author
-            if (post.userId !== req.session.userId) {
-                throw new Error('You are not authorized to delete this post');
-            }
-
-            // Delete associated tags
-            await PostTag.destroy({
-                where: { postId: post.id }
-            });
-
-            // Delete the post
+            await post.removeTags();
             await post.destroy();
 
             res.redirect('/posts?success=Post deleted successfully');
         } catch (error) {
-            res.redirect('/posts?error=' + error.message);
+            Controller.handleError(res, error, '/posts');
+        }
+    }
+
+    // Profile Controllers
+    static async getProfile(req, res) {
+        try {
+            const user = await User.findOne({
+                where: { id: req.session.userId },
+                include: [Profile]
+            });
+
+            if (!user.Profile) {
+                await user.createEmptyProfile();
+                const updatedUser = await User.findOne({
+                    where: { id: req.session.userId },
+                    include: [Profile]
+                });
+                return res.render('posts/profile', { user: updatedUser, Helper });
+            }
+
+            res.render('posts/profile', { user, Helper });
+        } catch (error) {
+            Controller.handleError(res, error);
+        }
+    }
+
+    static async updateProfile(req, res) {
+        try {
+            let profile = await Profile.findOne({
+                where: { userId: req.session.userId }
+            });
+
+            if (!profile) {
+                profile = await Profile.create({
+                    userId: req.session.userId,
+                    ...req.body
+                });
+            } else {
+                await profile.updateProfileData(req.body);
+            }
+
+            // Update session
+            const updatedUser = await User.findOne({
+                where: { id: req.session.userId },
+                include: [Profile]
+            });
+            req.session.user = updatedUser.profileData;
+
+            res.redirect('/profile?success=Profile updated successfully');
+        } catch (error) {
+            Controller.handleError(res, error, '/profile');
         }
     }
 }

@@ -7,6 +7,12 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             Tag.belongsToMany(models.Post, { through: "PostTag", foreignKey: 'tagId' })
         }
+
+        static async findOrCreateByName(name) {
+            return await Tag.findOrCreate({
+                where: { name: name.toLowerCase().trim() }
+            });
+        }
     }
     Tag.init({
         name: {

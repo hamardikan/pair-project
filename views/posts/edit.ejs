@@ -2,14 +2,43 @@
 <%- include('../partials/navbar') %>
 
 <div class="max-w-4xl mx-auto px-4 py-10">
-    <form action="/posts/<%= post.id %>/edit" method="POST" class="space-y-8">
+    <!-- Show error message if exists -->
+    <% if (locals.error) { %>
+        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <form action="/posts/<%= post.id %>/edit" method="POST" class="space-y-8" onsubmit="return validateForm()">
         <!-- Title Input -->
         <div>
-            <input type="text" 
-                   name="title" 
+            <input type="text"
+                   name="title"
                    value="<%= post.title %>"
-                   class="w-full text-5xl font-bold serif-pro border-none focus:outline-none focus:ring-0" 
+                   class="w-full text-5xl font-bold serif-pro border-none focus:outline-none focus:ring-0"
                    required>
+        </div>
+
+        <!-- Image URL Input -->
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Cover Image URL</label>
+                <input type="url"
+                       name="imgUrl"
+                       value="<%= post.imgUrl || '' %>"
+                       placeholder="https://example.com/image.jpg"
+                       class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500">
+            </div>
+
+            <!-- Preview current image if exists -->
+            <% if (post.imgUrl) { %>
+                <div class="relative rounded-lg overflow-hidden border border-gray-200">
+                    <img src="<%= post.imgUrl %>" 
+                         alt="Current cover image"
+                         class="w-full h-[300px] object-cover"
+                         onerror="this.style.display='none'">
+                </div>
+            <% } %>
         </div>
 
         <!-- Quill Editor -->
@@ -20,20 +49,23 @@
 
         <!-- Tags Input -->
         <div>
-            <input type="text" 
-                   name="tags" 
+            <input type="text"
+                   name="tags"
                    value="<%= Helper.formatTags(post.Tags) %>"
-                   placeholder="Add tags (comma separated)" 
+                   placeholder="Add tags (comma separated)"
                    class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500">
         </div>
 
+        <!-- Debug info - remove in production -->
+        <input type="hidden" id="debug-data" name="debug" value="">
+
         <!-- Submit Button -->
         <div class="flex justify-end space-x-4">
-            <a href="/posts/<%= post.id %>" 
+            <a href="/posts/<%= post.id %>"
                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50">
                 Cancel
             </a>
-            <button type="submit" 
+            <button type="submit"
                     class="px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                 Save Changes
             </button>
@@ -42,29 +74,54 @@
 </div>
 
 <script>
-    var quill = new Quill('#editor', {
-        theme: 'snow',
-        modules: {
-            toolbar: [
-                [{ 'header': [1, 2, false] }],
-                ['bold', 'italic', 'underline'],
-                ['link', 'blockquote', 'code-block'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                ['image'],
-                ['clean']
-            ]
-        }
+var quill = new Quill('#editor', {
+    theme: 'snow',
+    modules: {
+        toolbar: [
+            [{ 'header': [1, 2, false] }],
+            ['bold', 'italic', 'underline'],
+            ['link', 'blockquote', 'code-block'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            ['image'],
+            ['clean']
+        ]
+    }
+});
+
+// Set initial content
+const content = <%- JSON.stringify(post.content) %>;
+quill.root.innerHTML = content;
+
+function validateForm() {
+    // Get form data
+    const contentInput = document.querySelector('#hiddenContent');
+    const editorContent = quill.root.innerHTML;
+    const imgUrl = document.querySelector('input[name="imgUrl"]').value;
+    const title = document.querySelector('input[name="title"]').value;
+    
+    // Log form data for debugging
+    console.log('Form Data:', {
+        title,
+        imgUrl,
+        content: editorContent.substring(0, 100) + '...' // Log first 100 chars
     });
-
-    // Set initial content dengan cara yang lebih aman
-    const content = JSON.parse('<%- JSON.stringify(post.content) %>');
-    quill.root.innerHTML = content;
-
-    document.querySelector('form').onsubmit = function() {
-        var content = document.querySelector('#hiddenContent');
-        content.value = quill.root.innerHTML;
-        return true;
-    };
+    
+    // Store debug info
+    document.getElementById('debug-data').value = JSON.stringify({
+        title,
+        imgUrl,
+        contentLength: editorContent.length
+    });
+    
+    // Validate content
+    if (editorContent === '<p><br></p>' || !title.trim()) {
+        alert('Title and content are required');
+        return false;
+    }
+    
+    contentInput.value = editorContent;
+    return true;
+}
 </script>
 
 <%- include('../partials/footer') %>
