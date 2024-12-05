@@ -1,0 +1,72 @@
+[
+    { 
+     "id": 1,
+     "title": "First Post",
+     "content": "Content of post 1",
+     "imgUrl": "http://example.com/post1.png",
+     "userId": 1
+    },
+    {
+     "id": 2,
+     "title": "Second Post",
+     "content": "Content of post 2",
+     "imgUrl": "http://example.com/post2.png",
+     "userId": 2
+    },
+    { 
+     "id": 3,
+     "title": "Third Post",
+     "content": "Content of post 3",
+     "imgUrl": "http://example.com/post3.png",
+     "userId": 3
+    },
+    { 
+     "id": 4,
+     "title": "Fourth Post",
+     "content": "Content of post 4",
+     "imgUrl": "http://example.com/post4.png",
+     "userId": 4
+    },
+    {
+     "id": 5,
+     "title": "Fifth Post",
+     "content": "Content of post 5",
+     "imgUrl": "http://example.com/post5.png",
+     "userId": 5
+    },
+    { 
+     "id": 6,
+     "title": "Sixth Post",
+     "content": "Content of post 6",
+     "imgUrl": "http://example.com/post6.png",
+     "userId": 6
+    },
+    { 
+     "id": 7, 
+     "title": "Seventh Post",
+     "content": "Content of post 7",
+     "imgUrl": "http://example.com/post7.png",
+     "userId": 7
+    },
+    { 
+     "id": 8,
+     "title": "Eighth Post",
+     "content": "Content of post 8",
+     "imgUrl": "http://example.com/post8.png",
+     "userId": 8
+    },
+    { 
+     "id": 9,
+     "title": "Ninth Post",
+     "content": "Content of post 9",
+     "imgUrl": "http://example.com/post9.png",
+     "userId": 9
+    },
+    {
+     "id": 10,
+     "title": "Tenth Post",
+     "content": "Content of post 10",
+     "imgUrl": "http://example.com/post10.png", 
+     "userId": 10
+    }
+]
