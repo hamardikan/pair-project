@@ -1,29 +1,54 @@
 'use strict';
+const bcrypt = require('bcryptjs');
+
 const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
-      User.hasOne(models.Profile, { foreignKey: 'userId', as: 'profile' });
-      User.hasMany(models.Post, { foreignKey: 'userId', as: 'posts' });
+        User.hasOne(models.Profile, { foreignKey: 'userId'});
+        User.hasMany(models.Post, { foreignKey: 'userId'});
     }
   }
   User.init({
-    username: { type: DataTypes.STRING, allowNull: false, unique: true },
-    email: { type: DataTypes.STRING, allowNull: false, unique: true },
-    password: { type: DataTypes.STRING, allowNull: false },
-    role: { type: DataTypes.STRING, allowNull: false }
+    username: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: {
+          msg: "Must be valid email format!"
+        }
+      }
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: {
+          args: [8],
+          msg: "Password must be at least 8 characters"
+        }
+      }
+    },
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
   }, {
+    hooks: {
+      beforeCreate: (user) => {
+        const salt = bcrypt.genSaltSync(10);
+        user.password = bcrypt.hashSync(user.password, salt);
+      }
+    },
     sequelize,
     modelName: 'User',
-    tableName: 'Users',
   });
   return User;
 };

@@ -1,24 +1,34 @@
 'use strict';
 const {
-  Model
+    Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class postTag extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
+    class PostTag extends Model {
+        static associate(models) {
+            // junction table doesn't need associations
+        }
     }
-  }
-  postTag.init({
-    postId: { type: DataTypes.INTEGER, allowNull: false },
-      tagId: { type: DataTypes.INTEGER, allowNull: false }
-  }, {
-    sequelize,
-    modelName: 'postTag',
-  });
-  return postTag;
+    PostTag.init({
+        postId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'Posts',  // name of the referenced table
+                key: 'id'        // referenced column
+            }
+        },
+        tagId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'Tags',   // name of the referenced table
+                key: 'id'        // referenced column
+            }
+        }
+    }, {
+        sequelize,
+        modelName: 'PostTag',
+        tableName: 'PostTags'
+    });
+    return PostTag;
 };
