@@ -104,7 +104,7 @@ class Helper {
     }
 
     // Utility function to validate URLs
-    isValidUrl(string) {
+    static isValidUrl(string) {
         try {
             new URL(string);
             return true;
