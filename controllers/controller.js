@@ -132,26 +132,65 @@ class Controller {
 
     static async getPostsByTag(req, res) {
         try {
-            const { tagName } = req.params;
-            const tag = await Tag.findOne({
-                where: { name: tagName.toLowerCase() }
+          const { tagName } = req.params;
+          
+          const tag = await Tag.findOne({
+            where: {
+              name: {
+                [Op.iLike]: tagName
+              }
+            }
+          });
+      
+          if (!tag) {
+            const similarTags = await Tag.findAll({
+              where: {
+                name: {
+                  [Op.iLike]: `%${tagName}%`
+                }
+              },
+              limit: 5
             });
-
-            if (!tag) throw new Error('Tag not found');
-
-            const posts = await Post.findAll({
-                include: [
-                    { model: User, include: [Profile] },
-                    { model: Tag, where: { id: tag.id } }
-                ],
-                order: [['createdAt', 'DESC']]
-            });
-
-            res.render('posts/show', { posts, Helper, currentTag: tagName });
+      
+            if (similarTags.length > 0) {
+              return res.render('posts/show', { 
+                posts: [], 
+                Helper, 
+                currentTag: tagName,
+                similarTags,
+                error: `Tag "${tagName}" not found. Did you mean one of these?`
+              });
+            }
+            
+            throw new Error(`Tag "${tagName}" not found`);
+          }
+      
+          const posts = await Post.findAll({
+            include: [
+              { 
+                model: User, 
+                include: [Profile],
+                attributes: ['id', 'username']
+              },
+              { 
+                model: Tag, 
+                where: { id: tag.id },
+                attributes: ['id', 'name'] 
+              }
+            ],
+            order: [['createdAt', 'DESC']]
+          });
+      
+          res.render('posts/show', { 
+            posts, 
+            Helper, 
+            currentTag: tag.name
+          });
+      
         } catch (error) {
-            Controller.handleError(res, error, '/posts');
+          Controller.handleError(res, error, '/posts');
         }
-    }
+      }
 
     static createPostForm(req, res) {
         const { error } = req.query;
@@ -201,14 +240,6 @@ class Controller {
         } catch (error) {
           Controller.handleError(res, error, '/posts/new');
         }
-      }
-      
-      static handleError(res, error, redirectUrl = '/') {
-        console.error('Error:', error);
-        return res.render('posts/new', {
-          error: error.message,
-          formData: req.body // Send back the form data to repopulate the form
-        });
       }
       
 
@@ -365,6 +396,55 @@ class Controller {
             Controller.handleError(res, error, '/profile');
         }
     }
+
+    //admin controller
+    static async admin(req, res) {
+        try {
+          const stats = {
+            totalUsers: await User.count(),
+            totalPosts: await Post.count(),
+            totalTags: await Tag.count()
+          };
+    
+          const recentUsers = await User.findAll({
+            include: [
+              { 
+                model: Profile
+              },
+              {
+                model: Post,
+                attributes: ['id']
+              }
+            ],
+            order: [['createdAt', 'DESC']],
+            limit: 10
+          });
+    
+          const recentPosts = await Post.findAll({
+            include: [
+              {
+                model: User,
+                include: [Profile]
+              },
+              {
+                model: Tag
+              }
+            ],
+            order: [['createdAt', 'DESC']],
+            limit: 10
+          });
+    
+          res.render('admin', {
+            stats,
+            recentUsers,
+            recentPosts,
+            Helper
+          });
+        } catch (error) {
+            Controller.handleError(res, error, '/profile');
+        }
+    }
+
 }
 
 module.exports = Controller;

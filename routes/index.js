@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Controller = require('../controllers/controller');
-const { isLoggedIn, isNotLoggedIn } = require('../middlewares/auth.js');
+const { isLoggedIn, isNotLoggedIn, isAdmin } = require('../middlewares/auth.js');
 
 // Home & Auth routes
 router.get('/', Controller.home);
@@ -10,6 +10,7 @@ router.post('/register', isNotLoggedIn, Controller.register);
 router.get('/login', isNotLoggedIn, Controller.loginForm);
 router.post('/login', isNotLoggedIn, Controller.login);
 router.post('/logout', isLoggedIn, Controller.logout);
+router.get('/admin', isAdmin, Controller.admin)
 
 // Post routes
 router.get('/posts', Controller.getAllPosts);
