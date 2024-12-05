@@ -1,5 +1,6 @@
 const { User, Profile, Post, Tag, PostTag } = require('../models');
 const bcrypt = require('bcryptjs');
+const Helper = require("../helpers/index.js")
 
 class Controller {
     // Home
@@ -13,7 +14,7 @@ class Controller {
                 order: [['createdAt', 'DESC']],
                 limit: 6
             });
-            res.render('index', { posts });
+            res.render('index', { posts , Helper});
         } catch (error) {
             res.render('error', { error });
         }
@@ -49,18 +50,26 @@ class Controller {
         try {
             const { email, password } = req.body;
             const user = await User.findOne({ where: { email } });
-
+            
             if (!user) {
                 throw new Error('Invalid email/password');
             }
-
+            
             const isValidPassword = bcrypt.compareSync(password, user.password);
             if (!isValidPassword) {
                 throw new Error('Invalid email/password');
             }
-
+    
+            // Set session data
             req.session.userId = user.id;
             req.session.role = user.role;
+            req.session.user = {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role
+            };
+    
             res.redirect('/');
         } catch (error) {
             res.redirect(`/login?error=${error.message}`);
@@ -84,7 +93,7 @@ class Controller {
                 ],
                 order: [['createdAt', 'DESC']]
             });
-            res.render('posts/index', { posts });
+            res.render('posts/show', { posts, Helper });
         } catch (error) {
             res.render('error', { error });
         }
