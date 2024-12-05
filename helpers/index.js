@@ -31,25 +31,20 @@ class Helper {
     }
 
     static createExcerpt(content, length = 150) {
-        // First sanitize the HTML
         const sanitizedContent = this.sanitizeHtml(content);
-        // Remove HTML tags for clean excerpt
         const plainText = sanitizedContent.replace(/<[^>]+>/g, '').trim();
-        // Remove extra whitespace
         const cleanText = plainText.replace(/\s+/g, ' ');
 
         if (cleanText.length <= length) {
             return cleanText;
         }
 
-        // Find the last complete word within the length limit
         const truncated = cleanText.substr(0, length);
         const lastSpace = truncated.lastIndexOf(' ');
 
         return truncated.substr(0, lastSpace) + '...';
     }
 
-    // Enhanced sanitizeHtml method
     static sanitizeHtml(content) {
         if (!content) return '';
 

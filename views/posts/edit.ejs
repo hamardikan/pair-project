@@ -116,28 +116,24 @@ function validateForm() {
     let isValid = true;
     const errors = {};
 
-    // Title validation
     const title = document.getElementById('title').value.trim();
     if (!title) {
         errors.title = 'Title is required';
         isValid = false;
     }
 
-    // Content validation
     const editorContent = quill.root.innerHTML;
     if (editorContent === '<p><br></p>' || !editorContent.trim()) {
         errors.content = 'Content is required';
         isValid = false;
     }
 
-    // Image URL validation (optional)
     const imgUrl = document.getElementById('imgUrl').value.trim();
     if (imgUrl && !isValidUrl(imgUrl)) {
         errors.imgUrl = 'Please enter a valid URL';
         isValid = false;
     }
 
-    // Display errors
     Object.keys(errors).forEach(field => {
         const errorElement = document.getElementById(`${field}Error`);
         if (errorElement) {
@@ -158,7 +154,7 @@ function isValidUrl(string) {
     }
 }
 
-// Clear error when user starts typing
+
 document.querySelectorAll('input').forEach(input => {
     input.addEventListener('input', function() {
         const errorElement = document.getElementById(`${this.id}Error`);
@@ -168,7 +164,7 @@ document.querySelectorAll('input').forEach(input => {
     });
 });
 
-// Clear content error when editor content changes
+
 quill.on('text-change', function() {
     const errorElement = document.getElementById('contentError');
     if (errorElement) {
@@ -179,7 +175,6 @@ quill.on('text-change', function() {
 document.getElementById('editForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    // Clear all previous errors
     document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
 
     if (validateForm()) {
