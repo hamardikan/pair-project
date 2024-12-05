@@ -6,7 +6,29 @@ class Controller {
     // Centralized error handler
     static handleError(res, error, redirectUrl = '/') {
         console.error('Error:', error);
-        return res.redirect(`${redirectUrl}?error=${encodeURIComponent(error.message)}`);
+        
+        // If this is an edit route, we need to fetch the post again
+        if (redirectUrl.includes('/edit')) {
+            const id = redirectUrl.split('/')[2];
+            Post.findOne({
+                where: { id },
+                include: [Tag]
+            }).then(post => {
+                if (!post) {
+                    return res.redirect('/posts?error=' + encodeURIComponent('Post not found'));
+                }
+                
+                res.render('posts/edit', {
+                    post,
+                    error: error.message,
+                    formData: req.body // Send back the form data to repopulate the form
+                });
+            }).catch(err => {
+                res.redirect('/posts?error=' + encodeURIComponent(err.message));
+            });
+        } else {
+            res.redirect(`${redirectUrl}?error=${encodeURIComponent(error.message)}`);
+        }
     }
 
     static async home(req, res) {
@@ -140,22 +162,58 @@ class Controller {
 
     static async createPost(req, res) {
         try {
-            const { title, content, tags, imgUrl } = req.body;
-            const userId = req.session.userId;
-
-            const post = await Post.create({
-                title, content, imgUrl, userId
+          const { title, content, tags, imgUrl } = req.body;
+          const userId = req.session.userId;
+      
+          // Server-side validation
+          const errors = {};
+          
+          if (!title || !title.trim()) {
+            errors.title = 'Title is required';
+          }
+          
+          if (!content || content.trim() === '<p><br></p>') {
+            errors.content = 'Content is required';
+          }
+          
+          if (imgUrl && !Helper.isValidUrl(imgUrl)) {
+            errors.imgUrl = 'Please enter a valid URL';
+          }
+      
+          if (Object.keys(errors).length > 0) {
+            return res.render('posts/new', {
+              error: 'Please correct the validation errors',
+              errors,
+              formData: req.body
             });
-
-            if (tags) {
-                await post.addTags(tags.split(','));
-            }
-
-            res.redirect('/posts');
+          }
+      
+        
+          const post = await Post.create({
+            title, 
+            content, 
+            imgUrl, 
+            userId
+          });
+      
+          if (tags) {
+            await post.addTags(tags.split(','));
+          }
+      
+          res.redirect('/posts');
         } catch (error) {
-            Controller.handleError(res, error, '/posts/new');
+          Controller.handleError(res, error, '/posts/new');
         }
-    }
+      }
+      
+      static handleError(res, error, redirectUrl = '/') {
+        console.error('Error:', error);
+        return res.render('posts/new', {
+          error: error.message,
+          formData: req.body // Send back the form data to repopulate the form
+        });
+      }
+      
 
     static async editPostForm(req, res) {
         try {
@@ -180,27 +238,62 @@ class Controller {
         try {
             const { id } = req.params;
             const { title, content, tags, imgUrl } = req.body;
-
+            
+            // Server-side validation
+            const errors = {};
+            
+            if (!title || !title.trim()) {
+                errors.title = 'Title is required';
+            }
+            
+            if (!content || content.trim() === '<p><br></p>') {
+                errors.content = 'Content is required';
+            }
+            
+            if (imgUrl && !Helper.isValidUrl(imgUrl)) {
+                errors.imgUrl = 'Please enter a valid URL';
+            }
+    
+            // If there are validation errors, re-render the form
+            if (Object.keys(errors).length > 0) {
+                const post = await Post.findOne({
+                    where: { id },
+                    include: [Tag]
+                });
+                
+                return res.render('posts/edit', {
+                    post,
+                    error: 'Please correct the validation errors',
+                    errors,
+                    formData: req.body // Send back the form data to repopulate the form
+                });
+            }
+    
+            // Find the post
             const post = await Post.findOne({
                 where: { id },
                 include: [Tag]
             });
-
+    
             if (!post) throw new Error('Post not found');
+            
+            // Check authorization
             if (!post.isOwnedBy(req.session.userId)) {
                 throw new Error('Unauthorized access');
             }
-
+    
+            // Update post
             await post.update({
                 title,
                 content,
                 imgUrl: imgUrl || null
             });
-
+    
+            // Update tags if provided
             if (tags) {
                 await post.updateTags(tags.split(','));
             }
-
+    
             res.redirect(`/posts/${id}`);
         } catch (error) {
             Controller.handleError(res, error, `/posts/${req.params.id}/edit`);
@@ -216,17 +309,14 @@ class Controller {
                 throw new Error('Post not found');
             }
     
-            // Check if user is admin OR the author
-            if (req.session.user.role !== 'admin' || post.userId !== req.session.user.id) {
+            if (req.session.user.role !== 'admin' && post.userId !== req.session.user.id) {
                 throw new Error('You are not authorized to delete this post');
             }
     
-            // Delete associated tags
             await PostTag.destroy({
                 where: { postId: post.id }
             });
     
-            // Delete the post
             await post.destroy();
     
             res.redirect('/posts?success=Post deleted successfully');

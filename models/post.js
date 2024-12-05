@@ -96,7 +96,7 @@ module.exports = (sequelize, DataTypes) => {
           msg: "Content is required"
         },
         notOnlyHTML(value) {
-          // Check if content is just empty HTML
+
           const cleanContent = value.replace(/<[^>]*>/g, '').trim();
           if (!cleanContent) {
             throw new Error('Content cannot be empty');

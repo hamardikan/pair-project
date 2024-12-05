@@ -2,21 +2,17 @@
 <%- include('../partials/navbar') %>
 
 <div class="max-w-4xl mx-auto px-4 py-10">
-    <!-- Show error message if exists -->
-    <% if (locals.error) { %>
-        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-            <%= error %>
-        </div>
-    <% } %>
-
-    <form action="/posts/<%= post.id %>/edit" method="POST" class="space-y-8" onsubmit="return validateForm()">
+    <form action="/posts/<%= post.id %>/edit" method="POST" class="space-y-8" id="editForm" novalidate>
         <!-- Title Input -->
         <div>
             <input type="text"
                    name="title"
-                   value="<%= post.title %>"
-                   class="w-full text-5xl font-bold serif-pro border-none focus:outline-none focus:ring-0"
-                   required>
+                   id="title"
+                   value="<%= locals.formData ? formData.title : post.title %>"
+                   class="w-full text-5xl font-bold serif-pro border-none focus:outline-none focus:ring-0">
+            <div class="text-red-500 text-sm mt-1 hidden" id="titleError">
+                <%= locals.errors && errors.title ? errors.title : '' %>
+            </div>
         </div>
 
         <!-- Image URL Input -->
@@ -25,9 +21,13 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Cover Image URL</label>
                 <input type="url"
                        name="imgUrl"
-                       value="<%= post.imgUrl || '' %>"
+                       id="imgUrl"
+                       value="<%= locals.formData ? formData.imgUrl : (post.imgUrl || '') %>"
                        placeholder="https://example.com/image.jpg"
                        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500">
+                <div class="text-red-500 text-sm mt-1 hidden" id="imgUrlError">
+                    <%= locals.errors && errors.imgUrl ? errors.imgUrl : '' %>
+                </div>
             </div>
 
             <!-- Preview current image if exists -->
@@ -45,19 +45,28 @@
         <div>
             <div id="editor" class="h-96"></div>
             <input type="hidden" name="content" id="hiddenContent">
+            <div class="text-red-500 text-sm mt-1 hidden" id="contentError">
+                <%= locals.errors && errors.content ? errors.content : '' %>
+            </div>
         </div>
 
         <!-- Tags Input -->
         <div>
             <input type="text"
                    name="tags"
-                   value="<%= Helper.formatTags(post.Tags) %>"
+                   id="tags"
+                   value="<%= locals.formData ? formData.tags : Helper.formatTags(post.Tags) %>"
                    placeholder="Add tags (comma separated)"
                    class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500">
+            <div class="text-red-500 text-sm mt-1 hidden" id="tagsError">
+                <%= locals.errors && errors.tags ? errors.tags : '' %>
+            </div>
         </div>
 
-        <!-- Debug info - remove in production -->
-        <input type="hidden" id="debug-data" name="debug" value="">
+        <!-- Server-side Error Display -->
+        <% if (locals.error) { %>
+            <div class="text-red-500 text-sm" id="serverError"><%= error %></div>
+        <% } %>
 
         <!-- Submit Button -->
         <div class="flex justify-end space-x-4">
@@ -88,40 +97,97 @@ var quill = new Quill('#editor', {
     }
 });
 
-// Set initial content
-const content = <%- JSON.stringify(post.content) %>;
-quill.root.innerHTML = content;
+// Initialize content from either formData (if validation failed) or post content
+let initialContent = <%- locals.formData ? JSON.stringify(formData.content) : JSON.stringify(post.content) %>;
+
+// Ensure we have valid content
+if (initialContent) {
+    // Set editor content using Quill's setContents with Delta if possible, otherwise use HTML
+    try {
+        const delta = quill.clipboard.convert(initialContent);
+        quill.setContents(delta, 'silent');
+    } catch (e) {
+        console.error('Error setting Quill contents:', e);
+        quill.root.innerHTML = initialContent;
+    }
+}
 
 function validateForm() {
-    // Get form data
-    const contentInput = document.querySelector('#hiddenContent');
+    let isValid = true;
+    const errors = {};
+
+    // Title validation
+    const title = document.getElementById('title').value.trim();
+    if (!title) {
+        errors.title = 'Title is required';
+        isValid = false;
+    }
+
+    // Content validation
     const editorContent = quill.root.innerHTML;
-    const imgUrl = document.querySelector('input[name="imgUrl"]').value;
-    const title = document.querySelector('input[name="title"]').value;
-    
-    // Log form data for debugging
-    console.log('Form Data:', {
-        title,
-        imgUrl,
-        content: editorContent.substring(0, 100) + '...' // Log first 100 chars
+    if (editorContent === '<p><br></p>' || !editorContent.trim()) {
+        errors.content = 'Content is required';
+        isValid = false;
+    }
+
+    // Image URL validation (optional)
+    const imgUrl = document.getElementById('imgUrl').value.trim();
+    if (imgUrl && !isValidUrl(imgUrl)) {
+        errors.imgUrl = 'Please enter a valid URL';
+        isValid = false;
+    }
+
+    // Display errors
+    Object.keys(errors).forEach(field => {
+        const errorElement = document.getElementById(`${field}Error`);
+        if (errorElement) {
+            errorElement.textContent = errors[field];
+            errorElement.classList.remove('hidden');
+        }
     });
-    
-    // Store debug info
-    document.getElementById('debug-data').value = JSON.stringify({
-        title,
-        imgUrl,
-        contentLength: editorContent.length
-    });
-    
-    // Validate content
-    if (editorContent === '<p><br></p>' || !title.trim()) {
-        alert('Title and content are required');
+
+    return isValid;
+}
+
+function isValidUrl(string) {
+    try {
+        new URL(string);
+        return true;
+    } catch (_) {
         return false;
     }
-    
-    contentInput.value = editorContent;
-    return true;
 }
+
+// Clear error when user starts typing
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', function() {
+        const errorElement = document.getElementById(`${this.id}Error`);
+        if (errorElement) {
+            errorElement.classList.add('hidden');
+        }
+    });
+});
+
+// Clear content error when editor content changes
+quill.on('text-change', function() {
+    const errorElement = document.getElementById('contentError');
+    if (errorElement) {
+        errorElement.classList.add('hidden');
+    }
+});
+
+document.getElementById('editForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Clear all previous errors
+    document.querySelectorAll('[id$="Error"]').forEach(el => el.classList.add('hidden'));
+
+    if (validateForm()) {
+        const content = document.querySelector('#hiddenContent');
+        content.value = quill.root.innerHTML;
+        this.submit();
+    }
+});
 </script>
 
 <%- include('../partials/footer') %>

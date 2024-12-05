@@ -37,22 +37,22 @@ class Helper {
         const plainText = sanitizedContent.replace(/<[^>]+>/g, '').trim();
         // Remove extra whitespace
         const cleanText = plainText.replace(/\s+/g, ' ');
-        
+
         if (cleanText.length <= length) {
             return cleanText;
         }
-        
+
         // Find the last complete word within the length limit
         const truncated = cleanText.substr(0, length);
         const lastSpace = truncated.lastIndexOf(' ');
-        
+
         return truncated.substr(0, lastSpace) + '...';
     }
 
     // Enhanced sanitizeHtml method
     static sanitizeHtml(content) {
         if (!content) return '';
-        
+
         return content
             // Remove script tags and their content
             .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
@@ -67,22 +67,22 @@ class Helper {
                     .replace(/on\w+="[^"]*"/g, '') // Remove event handlers
                     .replace(/style="[^"]*"/g, '')  // Remove inline styles
                     .replace(/javascript:[^"']*/g, ''); // Remove javascript: protocols
-                
+
                 // For img tags, ensure src is properly formatted
                 if (tag === 'img') {
                     // Keep only src, alt, and class attributes
                     const src = attributes.match(/src="([^"]*)"/);
                     const alt = attributes.match(/alt="([^"]*)"/);
                     const className = attributes.match(/class="([^"]*)"/);
-                    
+
                     let newAttributes = '';
                     if (src) newAttributes += ` ${src[0]}`;
                     if (alt) newAttributes += ` ${alt[0]}`;
                     if (className) newAttributes += ` ${className[0]}`;
-                    
+
                     return `<${tag}${newAttributes}>`;
                 }
-                
+
                 return `<${tag}${safeAttributes}>`;
             });
     }
@@ -102,6 +102,17 @@ class Helper {
     static getDefaultAvatar(username) {
         return `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`;
     }
+
+    // Utility function to validate URLs
+    isValidUrl(string) {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
+
 }
 
 module.exports = Helper;
