@@ -1,0 +1,52 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<div class="max-w-4xl mx-auto px-4 py-10">
+    <div class="space-y-8">
+        <!-- Profile Header -->
+        <div class="text-center">
+            <img class="h-32 w-32 rounded-full mx-auto mb-4" 
+                 src="<%= user.Profile?.avatarUrl || Helper.getDefaultAvatar(user.username) %>" 
+                 alt="<%= user.username %>">
+            <h1 class="text-3xl font-bold serif-pro"><%= user.Profile?.fullName || user.username %></h1>
+            <% if (user.Profile?.location) { %>
+                <p class="text-gray-600"><%= user.Profile.location %></p>
+            <% } %>
+        </div>
+
+        <!-- Profile Edit Form -->
+        <form action="/profile" method="POST" class="space-y-6 max-w-2xl mx-auto">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                <input type="text" 
+                       name="fullName" 
+                       value="<%= user.Profile?.fullName || '' %>"
+                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Bio</label>
+                <textarea name="bio" 
+                          rows="4" 
+                          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500"><%= user.Profile?.bio || '' %></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Location</label>
+                <input type="text" 
+                       name="location" 
+                       value="<%= user.Profile?.location || '' %>"
+                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500">
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" 
+                        class="px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    Save Profile
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

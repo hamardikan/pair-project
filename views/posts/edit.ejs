@@ -1,0 +1,70 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<div class="max-w-4xl mx-auto px-4 py-10">
+    <form action="/posts/<%= post.id %>/edit" method="POST" class="space-y-8">
+        <!-- Title Input -->
+        <div>
+            <input type="text" 
+                   name="title" 
+                   value="<%= post.title %>"
+                   class="w-full text-5xl font-bold serif-pro border-none focus:outline-none focus:ring-0" 
+                   required>
+        </div>
+
+        <!-- Quill Editor -->
+        <div>
+            <div id="editor" class="h-96"></div>
+            <input type="hidden" name="content" id="hiddenContent">
+        </div>
+
+        <!-- Tags Input -->
+        <div>
+            <input type="text" 
+                   name="tags" 
+                   value="<%= Helper.formatTags(post.Tags) %>"
+                   placeholder="Add tags (comma separated)" 
+                   class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500">
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end space-x-4">
+            <a href="/posts/<%= post.id %>" 
+               class="px-6 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50">
+                Cancel
+            </a>
+            <button type="submit" 
+                    class="px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    var quill = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, false] }],
+                ['bold', 'italic', 'underline'],
+                ['link', 'blockquote', 'code-block'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['image'],
+                ['clean']
+            ]
+        }
+    });
+
+    // Set initial content dengan cara yang lebih aman
+    const content = JSON.parse('<%- JSON.stringify(post.content) %>');
+    quill.root.innerHTML = content;
+
+    document.querySelector('form').onsubmit = function() {
+        var content = document.querySelector('#hiddenContent');
+        content.value = quill.root.innerHTML;
+        return true;
+    };
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,31 @@
+<nav class="border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <!-- Logo -->
+            <div class="flex-shrink-0">
+                <a href="/" class="text-2xl font-bold serif-pro">Go-Blog</a>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="hidden md:block">
+                <div class="ml-10 flex items-center space-x-4">
+                    <a href="/" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm">Home</a>
+                    <a href="/posts" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm">Articles</a>
+                    
+                    <% if (locals.user) { %>
+                        <a href="/posts/new" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm">Write</a>
+                        <div class="relative ml-3">
+                            <a href="/profile" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm">Profile</a>
+                            <form action="/logout" method="POST" class="inline">
+                                <button type="submit" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm">Sign Out</button>
+                            </form>
+                        </div>
+                    <% } else { %>
+                        <a href="/login" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm">Sign In</a>
+                        <a href="/register" class="bg-green-600 text-white px-4 py-2 rounded-full text-sm hover:bg-green-700">Get Started</a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
