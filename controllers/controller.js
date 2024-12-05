@@ -3,11 +3,9 @@ const Helper = require("../helpers/index.js");
 const { Op } = require('sequelize');
 
 class Controller {
-    // Centralized error handler
     static handleError(res, error, redirectUrl = '/') {
         console.error('Error:', error);
         
-        // If this is an edit route, we need to fetch the post again
         if (redirectUrl.includes('/edit')) {
             const id = redirectUrl.split('/')[2];
             Post.findOne({
@@ -21,7 +19,7 @@ class Controller {
                 res.render('posts/edit', {
                     post,
                     error: error.message,
-                    formData: req.body // Send back the form data to repopulate the form
+                    formData: req.body
                 });
             }).catch(err => {
                 res.redirect('/posts?error=' + encodeURIComponent(err.message));
@@ -165,7 +163,6 @@ class Controller {
           const { title, content, tags, imgUrl } = req.body;
           const userId = req.session.userId;
       
-          // Server-side validation
           const errors = {};
           
           if (!title || !title.trim()) {
@@ -239,7 +236,6 @@ class Controller {
             const { id } = req.params;
             const { title, content, tags, imgUrl } = req.body;
             
-            // Server-side validation
             const errors = {};
             
             if (!title || !title.trim()) {
@@ -254,7 +250,6 @@ class Controller {
                 errors.imgUrl = 'Please enter a valid URL';
             }
     
-            // If there are validation errors, re-render the form
             if (Object.keys(errors).length > 0) {
                 const post = await Post.findOne({
                     where: { id },
@@ -265,11 +260,10 @@ class Controller {
                     post,
                     error: 'Please correct the validation errors',
                     errors,
-                    formData: req.body // Send back the form data to repopulate the form
+                    formData: req.body 
                 });
             }
     
-            // Find the post
             const post = await Post.findOne({
                 where: { id },
                 include: [Tag]
@@ -277,19 +271,16 @@ class Controller {
     
             if (!post) throw new Error('Post not found');
             
-            // Check authorization
             if (!post.isOwnedBy(req.session.userId)) {
                 throw new Error('Unauthorized access');
             }
     
-            // Update post
             await post.update({
                 title,
                 content,
                 imgUrl: imgUrl || null
             });
     
-            // Update tags if provided
             if (tags) {
                 await post.updateTags(tags.split(','));
             }
@@ -363,7 +354,6 @@ class Controller {
                 await profile.updateProfileData(req.body);
             }
 
-            // Update session
             const updatedUser = await User.findOne({
                 where: { id: req.session.userId },
                 include: [Profile]
